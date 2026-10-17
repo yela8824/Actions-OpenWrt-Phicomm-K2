@@ -1,0 +1,48 @@
+# 使用方法:
+# 1. 打开你已有的 fork 仓库(例如 RC1844/Actions-OpenWrt-Phicomm-K2)
+#    或者新建一个空仓库也可以 —— 源码会在任务里自动克隆,仓库本身内容无所谓
+# 2. 把本文件上传到仓库的 .github/workflows/padavan.yml
+# 3. Actions 页面 -> Build Padavan PSG1218 (K2) -> Run workflow
+# 4. 约 1.5~2.5 小时后, 在该次运行页面底部 Artifacts 下载 PSG1218.trx
+# 5. Breed 刷入: 按住 RESET 上电进 Breed -> 192.168.1.1 -> 固件更新 -> 上传 trx
+# 6. 刷完后管理地址变为 192.168.2.1, 用户名/密码 admin/admin
+#    SSR 配置入口: 扩展功能 -> Shadowsocks  (支持 ss:// 和 ssr:// 订阅链接)
+
+name: Build Padavan PSG1218 (K2)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y unzip libtool-bin curl cmake gperf gawk flex bison \
+            fakeroot kmod cpio git python-docutils gettext automake autopoint \
+            texinfo build-essential help2man pkg-config zlib1g-dev libgmp3-dev \
+            libmpc-dev libmpfr-dev libncurses-dev libltdl-dev wget libc-dev-bin xxd
+
+      - name: Clone padavan source (chongshengB, with SSR)
+        run: |
+          sudo git clone --depth=1 https://github.com/chongshengB/rt-n56u.git /opt/rt-n56u
+
+      - name: Download prebuilt toolchain
+        run: |
+          cd /opt/rt-n56u/toolchain-mipsel
+          sudo sh dl_toolchain.sh
+
+      - name: Build firmware
+        run: |
+          cd /opt/rt-n56u/trunk
+          sudo ./clear_tree
+          sudo fakeroot ./build_firmware_modify PSG1218
+          ls -lh /opt/rt-n56u/trunk/images/
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: PSG1218-padavan-ssr
+          path: /opt/rt-n56u/trunk/images/*.trx
