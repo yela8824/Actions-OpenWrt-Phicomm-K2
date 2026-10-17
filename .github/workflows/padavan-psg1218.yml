@@ -44,13 +44,17 @@ jobs:
       - name: Build firmware
         run: |
           cd /opt/rt-n56u/trunk
+
+          # 注释掉 build_firmware_modify 里强制禁用 SHADOWSOCKS 和 DNSFORWARDER 的代码
+          sudo sed -i 's/^sed -i.*CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS/#sed -i DISABLED/' build_firmware_modify
+          sudo sed -i 's/^echo "CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS=n"/#echo "DISABLED SHADOWSOCKS"/' build_firmware_modify
+          sudo sed -i 's/^echo "CONFIG_FIRMWARE_INCLUDE_DNSFORWARDER=n"/#echo "DISABLED DNSFORWARDER"/' build_firmware_modify
+
+          # 确认修改结果
+          grep -n "SHADOWSOCKS\|DNSFORWARDER" build_firmware_modify | grep -v "^#"
+
           sudo ./clear_tree
-          # build_firmware_modify 会强制把 SHADOWSOCKS 禁用，这里手动改回来
           sudo fakeroot ./build_firmware_modify PSG1218
-          sudo sed -i 's/CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS=n/CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS=y/' .config
-          sudo sed -i 's/CONFIG_FIRMWARE_INCLUDE_DNSFORWARDER=n/CONFIG_FIRMWARE_INCLUDE_DNSFORWARDER=y/' .config
-          grep "CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS" .config
-          # 继续编译
           sudo make
           ls -lh /opt/rt-n56u/trunk/images/
 
