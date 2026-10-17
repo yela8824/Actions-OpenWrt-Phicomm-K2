@@ -21,7 +21,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y unzip libtool-bin curl cmake gperf gawk flex bison \
-            fakeroot kmod cpio git python-docutils gettext automake autopoint \
+            fakeroot kmod cpio git python3-docutils gettext automake autopoint \
             texinfo build-essential help2man pkg-config zlib1g-dev libgmp3-dev \
             libmpc-dev libmpfr-dev libncurses-dev libltdl-dev wget libc-dev-bin xxd
 
