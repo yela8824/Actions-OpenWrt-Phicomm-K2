@@ -34,6 +34,13 @@ jobs:
           cd /opt/rt-n56u/toolchain-mipsel
           sudo sh dl_toolchain.sh
 
+      - name: Download Go (fix broken mirror)
+        run: |
+          mkdir -p /opt/rt-n56u/trunk/tools/go
+          curl -L --retry 3 --fail https://dl.google.com/go/go1.15.2.linux-amd64.tar.gz \
+            -o /opt/rt-n56u/trunk/tools/go/go1.15.2.linux-amd64.tar.gz
+          ls -lh /opt/rt-n56u/trunk/tools/go/
+
       - name: Build firmware
         run: |
           cd /opt/rt-n56u/trunk
