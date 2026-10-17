@@ -45,7 +45,13 @@ jobs:
         run: |
           cd /opt/rt-n56u/trunk
           sudo ./clear_tree
+          # build_firmware_modify 会强制把 SHADOWSOCKS 禁用，这里手动改回来
           sudo fakeroot ./build_firmware_modify PSG1218
+          sudo sed -i 's/CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS=n/CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS=y/' .config
+          sudo sed -i 's/CONFIG_FIRMWARE_INCLUDE_DNSFORWARDER=n/CONFIG_FIRMWARE_INCLUDE_DNSFORWARDER=y/' .config
+          grep "CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS" .config
+          # 继续编译
+          sudo make
           ls -lh /opt/rt-n56u/trunk/images/
 
       - name: Upload firmware
